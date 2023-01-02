@@ -4,6 +4,10 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.swing.JButton;
@@ -53,6 +57,7 @@ public class ControlDeStockFrame extends JFrame {
         modelo.addColumn("Identificador del Producto");
         modelo.addColumn("Nombre del Producto");
         modelo.addColumn("Descripción del Producto");
+        modelo.addColumn("Cantidad");
 
         cargarTabla();
 
@@ -207,15 +212,31 @@ public class ControlDeStockFrame extends JFrame {
     }
 
     private void cargarTabla() {
-        var productos = this.productoController.listar();
+        List<Map<String, String>> productos = new ArrayList<Map<String, String>>();
 
         try {
-            // TODO
-            // productos.forEach(producto -> modelo.addRow(new Object[] { "id", "nombre",
-            // "descripcion" }));
-        } catch (Exception e) {
-            throw e;
-        }
+			productos = this.productoController.listar();
+			
+			try {
+				productos.forEach(
+					producto -> modelo.addRow(
+						new Object[] {
+							producto.get("id"),
+							producto.get("nombre"),
+							producto.get("descripcion"),
+							producto.get("cantidad")
+						}
+					)
+				);
+			} catch (Exception e) {
+				throw e;
+			}
+			
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+			throw new RuntimeException(e1);
+		}
+
     }
 
     private void guardar() {
