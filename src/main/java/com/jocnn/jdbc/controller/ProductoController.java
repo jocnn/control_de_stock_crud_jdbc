@@ -1,7 +1,6 @@
 package com.jocnn.jdbc.controller;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import con.jocnn.jdbc.factory.ConnectionFactory;
 
 public class ProductoController {
 	public void modificar(String nombre, String descripcion, Integer id) {
@@ -20,10 +21,7 @@ public class ProductoController {
 	}
 
 	public List<Map<String, String>> listar() throws SQLException {
-		Connection cn = DriverManager.getConnection(
-			"jdbc:mysql://localhost/control_de_stock?useTimeZone=true&serverTimeZone=UTC",
-			"root",
-			"ijann90210");
+		Connection cn = new ConnectionFactory().recuperaConexion();
 		
 		Statement statement = cn.createStatement();
 		boolean result = statement.execute("SELECT id, nombre, descripcion, cantidad FROM producto");

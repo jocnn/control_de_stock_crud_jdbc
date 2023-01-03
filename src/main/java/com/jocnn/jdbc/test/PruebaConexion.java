@@ -1,15 +1,14 @@
 package com.jocnn.jdbc.test;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+
+import con.jocnn.jdbc.factory.ConnectionFactory;
 
 public class PruebaConexion {
 	public static void main(String[] args) throws SQLException {
-		Connection cn = DriverManager.getConnection(
-				"jdbc:mysql://localhost/control_de_stock?useTimeZone=true&serverTimeZone=UTC",
-				"root",
-				"ijann90210");
+		Connection cn = new ConnectionFactory().recuperaConexion();
+
 		System.out.println("La conexión a la db esta abierta");
 		
 		cn.close();
