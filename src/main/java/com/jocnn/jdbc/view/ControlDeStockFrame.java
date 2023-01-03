@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -256,22 +257,31 @@ public class ControlDeStockFrame extends JFrame {
         }
 
         // TODO
-        var producto = new Object[] { textoNombre.getText(), textoDescripcion.getText(), cantidadInt };
+        var producto = new HashMap<String, String>();
+        producto.put("nombre", textoNombre.getText());
+        producto.put("descripcion", textoDescripcion.getText());
+        producto.put("cantidad", String.valueOf(cantidadInt));
+        
         var categoria = comboCategoria.getSelectedItem();
-
-        this.productoController.guardar(producto);
-
+        
+        try {
+            this.productoController.guardar(producto);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        
         JOptionPane.showMessageDialog(this, "Registrado con éxito!");
-
+        
         this.limpiarFormulario();
     }
-
+    
     private void limpiarFormulario() {
         this.textoNombre.setText("");
         this.textoDescripcion.setText("");
         this.textoCantidad.setText("");
         this.comboCategoria.setSelectedIndex(0);
     }
-
-
+    
+    
 }
