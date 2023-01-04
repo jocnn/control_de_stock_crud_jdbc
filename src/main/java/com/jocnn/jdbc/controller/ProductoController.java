@@ -76,6 +76,11 @@ public class ProductoController {
 	}
 	
     public void guardar(Map<String, String> producto) throws SQLException {
+		String nombre = producto.get("nombre");
+		String descripcion = producto.get("descripcion");
+		Integer cantidad = Integer.valueOf(producto.get("cantidad"));
+		Integer maxCantidad = 50;
+		
 		ConnectionFactory factory = new ConnectionFactory();
 		Connection cn = factory.recuperaConexion();
 		
@@ -84,9 +89,19 @@ public class ProductoController {
 			+ " VALUES (?, ?, ?)", 
 			Statement.RETURN_GENERATED_KEYS);
 		
-		statement.setString(1, producto.get("nombre"));
-		statement.setString(2, producto.get("descripcion"));
-		statement.setInt(3, Integer.valueOf(producto.get("cantidad")));
+		do {
+			int cantidadParaGuardar = Math.min(cantidad, maxCantidad);
+			ejecutaRegistro(nombre, descripcion, cantidadParaGuardar, statement);
+			cantidad -= maxCantidad;
+		}while(cantidad > 0);
+		cn.close();
+	}
+
+	private void ejecutaRegistro(String nombre, String descripcion, Integer cantidad, PreparedStatement statement)
+			throws SQLException {
+		statement.setString(1, nombre);
+		statement.setString(2, descripcion);
+		statement.setInt(3, cantidad);
 		statement.execute();
 		
 		ResultSet resultSet = statement.getGeneratedKeys();
