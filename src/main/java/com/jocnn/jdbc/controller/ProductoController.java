@@ -12,10 +12,25 @@ import java.util.Map;
 import con.jocnn.jdbc.factory.ConnectionFactory;
 
 public class ProductoController {
-	public void modificar(String nombre, String descripcion, Integer id) {
-		// TODO
+	
+	public int modificar(String nombre, String descripcion, Integer cantidad, Integer id) throws SQLException {
+		ConnectionFactory factory = new ConnectionFactory();
+		Connection cn = factory.recuperaConexion();
+		Statement statement = cn.createStatement();
+		
+		statement.execute("UPDATE producto SET"
+			+ " nombre = '" + nombre + "'"
+			+ ", descripcion = '" + descripcion + "'"
+			+ ", cantidad = " + cantidad
+			+ " WHERE id = " + id);
+		
+		int updateCount = statement.getUpdateCount();
+		
+		cn.close();
+		
+		return updateCount;
 	}
-
+	
 	public int eliminar(Integer id) throws SQLException {
 		Connection cn = new ConnectionFactory().recuperaConexion();
 		Statement statement = cn.createStatement();
