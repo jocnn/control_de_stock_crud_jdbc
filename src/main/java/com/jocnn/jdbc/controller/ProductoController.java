@@ -89,17 +89,27 @@ public class ProductoController {
 			+ "(nombre, descripcion, cantidad)" 
 			+ " VALUES (?, ?, ?)", 
 			Statement.RETURN_GENERATED_KEYS);
-		
-		do {
-			int cantidadParaGuardar = Math.min(cantidad, maxCantidad);
-			ejecutaRegistro(nombre, descripcion, cantidadParaGuardar, statement);
-			cantidad -= maxCantidad;
-		}while(cantidad > 0);
-		cn.close();
+
+		try {
+			do {
+				int cantidadParaGuardar = Math.min(cantidad, maxCantidad);
+				ejecutaRegistro(nombre, descripcion, cantidadParaGuardar, statement);
+				cantidad -= maxCantidad;
+			} while (cantidad > 0);
+			cn.commit();
+			System.out.println("commit");
+		} catch (Exception e) {
+			cn.rollback();
+			System.out.println("rollback");
+		} finally {
+			statement.close();
+			cn.close();
+		}
 	}
 
 	private void ejecutaRegistro(String nombre, String descripcion, Integer cantidad, PreparedStatement statement)
 			throws SQLException {
+		// código de prueba para commit y rollback en el método guardar
 		// if (cantidad < 50) {
 		// 	throw new RuntimeException("Ocurrio un error");
 		// }
