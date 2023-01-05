@@ -83,6 +83,7 @@ public class ProductoController {
 		
 		ConnectionFactory factory = new ConnectionFactory();
 		Connection cn = factory.recuperaConexion();
+		cn.setAutoCommit(false);
 		
 		PreparedStatement statement = cn.prepareStatement("INSERT INTO producto " 
 			+ "(nombre, descripcion, cantidad)" 
@@ -99,6 +100,9 @@ public class ProductoController {
 
 	private void ejecutaRegistro(String nombre, String descripcion, Integer cantidad, PreparedStatement statement)
 			throws SQLException {
+		// if (cantidad < 50) {
+		// 	throw new RuntimeException("Ocurrio un error");
+		// }
 		statement.setString(1, nombre);
 		statement.setString(2, descripcion);
 		statement.setInt(3, cantidad);
