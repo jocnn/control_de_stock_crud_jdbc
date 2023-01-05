@@ -16,63 +16,72 @@ public class ProductoController {
 	
 	public int modificar(String nombre, String descripcion, Integer cantidad, Integer id) throws SQLException {
 		ConnectionFactory factory = new ConnectionFactory();
-		Connection cn = factory.recuperaConexion();
+		final Connection cn = factory.recuperaConexion();
 		
-		PreparedStatement statement = cn.prepareStatement("UPDATE producto SET"
-			+ " nombre = ?"
-			+ ", descripcion = ?"
-			+ ", cantidad = ?"
-			+ " WHERE id = ?");
-		statement.setString(1, nombre);
-		statement.setString(2, descripcion);
-		statement.setInt(3, cantidad);
-		statement.setInt(4, id);
-		statement.execute();
-
-		int updateCount = statement.getUpdateCount();
-		
-		cn.close();
-		return updateCount;
+		try (cn) {
+			final PreparedStatement statement = cn.prepareStatement("UPDATE producto SET"
+				+ " nombre = ?"
+				+ ", descripcion = ?"
+				+ ", cantidad = ?"
+				+ " WHERE id = ?");
+			statement.setString(1, nombre);
+			statement.setString(2, descripcion);
+			statement.setInt(3, cantidad);
+			statement.setInt(4, id);
+			
+			try (statement) {
+				statement.execute();
+				int updateCount = statement.getUpdateCount();
+				return updateCount;
+			}
+		}
 	}
 	
 	public int eliminar(Integer id) throws SQLException {
 		ConnectionFactory factory = new ConnectionFactory();
-		Connection cn = factory.recuperaConexion();
+		final Connection cn = factory.recuperaConexion();
 		
-		PreparedStatement statement = cn.prepareStatement("DELETE FROM producto WHERE id = ?");
-		statement.setInt(1, id);
-		statement.execute();
-
-		int updateCount = statement.getUpdateCount();
-		
-		cn.close();
-		return updateCount;
+		try (cn) {
+			final PreparedStatement statement = cn.prepareStatement("DELETE FROM producto WHERE id = ?");
+			
+			try (statement) {
+				statement.setInt(1, id);
+				statement.execute();
+				
+				int updateCount = statement.getUpdateCount();
+				return updateCount;
+			}
+		}
 	}
 	
 	public List<Map<String, String>> listar() throws SQLException {
 		ConnectionFactory factory = new ConnectionFactory();
-		Connection cn = factory.recuperaConexion();
+		final Connection cn = factory.recuperaConexion();
 		
-		PreparedStatement statement = cn.prepareStatement(
-			"SELECT id, nombre, descripcion, cantidad FROM producto");
-		statement.execute();
-		
-		ResultSet resultSet = statement.getResultSet();
-		
-		List<Map<String, String>> resultado = new ArrayList<>();
-		
-		while (resultSet.next()) {
-			Map<String, String> fila = new HashMap<>();
-			fila.put("id", String.valueOf(resultSet.getInt("id")));
-			fila.put("nombre", resultSet.getString("nombre"));
-			fila.put("descripcion", resultSet.getString("descripcion"));
-			fila.put("cantidad", String.valueOf(resultSet.getInt("cantidad")));
-			
-			resultado.add(fila);
+		try (cn) {
+			final PreparedStatement statement = cn.prepareStatement(
+				"SELECT id, nombre, descripcion, cantidad FROM producto");
+
+			try (statement) {
+				
+				statement.execute();
+				
+				ResultSet resultSet = statement.getResultSet();
+				
+				List<Map<String, String>> resultado = new ArrayList<>();
+				
+				while (resultSet.next()) {
+					Map<String, String> fila = new HashMap<>();
+					fila.put("id", String.valueOf(resultSet.getInt("id")));
+					fila.put("nombre", resultSet.getString("nombre"));
+					fila.put("descripcion", resultSet.getString("descripcion"));
+					fila.put("cantidad", String.valueOf(resultSet.getInt("cantidad")));
+					
+					resultado.add(fila);
+				}
+				return resultado;
+			}
 		}
-		
-		cn.close();
-		return resultado;
 	}
 	
     public void guardar(Map<String, String> producto) throws SQLException {
@@ -82,29 +91,31 @@ public class ProductoController {
 		Integer maxCantidad = 50;
 		
 		ConnectionFactory factory = new ConnectionFactory();
-		Connection cn = factory.recuperaConexion();
-		cn.setAutoCommit(false);
+		final Connection cn = factory.recuperaConexion();
 		
-		PreparedStatement statement = cn.prepareStatement("INSERT INTO producto " 
-			+ "(nombre, descripcion, cantidad)" 
-			+ " VALUES (?, ?, ?)", 
-			Statement.RETURN_GENERATED_KEYS);
+		try (cn) {
+			cn.setAutoCommit(false);
+			
+			final PreparedStatement statement = cn.prepareStatement("INSERT INTO producto " 
+				+ "(nombre, descripcion, cantidad)" 
+				+ " VALUES (?, ?, ?)", 
+				Statement.RETURN_GENERATED_KEYS);
 
-		try {
-			do {
-				int cantidadParaGuardar = Math.min(cantidad, maxCantidad);
-				ejecutaRegistro(nombre, descripcion, cantidadParaGuardar, statement);
-				cantidad -= maxCantidad;
-			} while (cantidad > 0);
-			cn.commit();
-			System.out.println("commit");
-		} catch (Exception e) {
-			cn.rollback();
-			System.out.println("rollback");
-		} finally {
-			statement.close();
-			cn.close();
+			try (statement) {
+				do {
+					int cantidadParaGuardar = Math.min(cantidad, maxCantidad);
+					ejecutaRegistro(nombre, descripcion, cantidadParaGuardar, statement);
+					cantidad -= maxCantidad;
+				} while (cantidad > 0);
+				cn.commit();
+				System.out.println("commit");
+			} catch (Exception e) {
+				cn.rollback();
+				System.out.println("rollback");
+				
+			}
 		}
+		
 	}
 
 	private void ejecutaRegistro(String nombre, String descripcion, Integer cantidad, PreparedStatement statement)
@@ -118,13 +129,14 @@ public class ProductoController {
 		statement.setInt(3, cantidad);
 		statement.execute();
 		
-		ResultSet resultSet = statement.getGeneratedKeys();
-		
-		while( resultSet.next()) {
-			System.out.println(
-				String.format("Fue insertado el producto de ID %d",
-				resultSet.getInt(1)
-			));
+		final ResultSet resultSet = statement.getGeneratedKeys();
+			
+		try (resultSet) {
+			while (resultSet.next()) {
+				System.out.println(
+						String.format("Fue insertado el producto de ID %d",
+							resultSet.getInt(1)));
+			}
 		}
 	}
 }
