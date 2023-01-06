@@ -1,15 +1,28 @@
 package con.jocnn.jdbc.factory;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class ConnectionFactory {
+import javax.sql.DataSource;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+public class ConnectionFactory {
+	
+	private DataSource dataSource;
+	
+	public ConnectionFactory() {
+		var pooledDataSource = new ComboPooledDataSource();
+		pooledDataSource.setJdbcUrl(
+			"jdbc:mysql://localhost/control_de_stock?useTimeZone=true&serverTimeZone=UTC");
+		pooledDataSource.setUser("root");
+		pooledDataSource.setPassword("ijann90210");
+		pooledDataSource.setMaxPoolSize(10);
+		
+		this.dataSource = pooledDataSource;
+	}
+	
 	public Connection recuperaConexion() throws SQLException {
-		return DriverManager.getConnection(
-			"jdbc:mysql://localhost/control_de_stock?useTimeZone=true&serverTimeZone=UTC",
-			"root",
-			"ijann90210");
+		return this.dataSource.getConnection();
 	}
 }
