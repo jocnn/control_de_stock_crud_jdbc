@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jocnn.jdbc.modelo.Producto;
+
 import con.jocnn.jdbc.factory.ConnectionFactory;
 
 public class ProductoController {
@@ -63,11 +65,8 @@ public class ProductoController {
 				"SELECT id, nombre, descripcion, cantidad FROM producto");
 
 			try (statement) {
-				
 				statement.execute();
-				
 				ResultSet resultSet = statement.getResultSet();
-				
 				List<Map<String, String>> resultado = new ArrayList<>();
 				
 				while (resultSet.next()) {
@@ -84,12 +83,7 @@ public class ProductoController {
 		}
 	}
 	
-    public void guardar(Map<String, String> producto) throws SQLException {
-		String nombre = producto.get("nombre");
-		String descripcion = producto.get("descripcion");
-		Integer cantidad = Integer.valueOf(producto.get("cantidad"));
-		Integer maxCantidad = 50;
-		
+    public void guardar(Producto producto) throws SQLException {
 		ConnectionFactory factory = new ConnectionFactory();
 		final Connection cn = factory.recuperaConexion();
 		
@@ -102,40 +96,32 @@ public class ProductoController {
 				Statement.RETURN_GENERATED_KEYS);
 
 			try (statement) {
-				do {
-					int cantidadParaGuardar = Math.min(cantidad, maxCantidad);
-					ejecutaRegistro(nombre, descripcion, cantidadParaGuardar, statement);
-					cantidad -= maxCantidad;
-				} while (cantidad > 0);
+				ejecutaRegistro(producto, statement);
 				cn.commit();
 				System.out.println("commit");
 			} catch (Exception e) {
+				e.printStackTrace();
 				cn.rollback();
 				System.out.println("rollback");
-				
 			}
 		}
 		
 	}
 
-	private void ejecutaRegistro(String nombre, String descripcion, Integer cantidad, PreparedStatement statement)
+	private void ejecutaRegistro(Producto producto, PreparedStatement statement)
 			throws SQLException {
-		// código de prueba para commit y rollback en el método guardar
-		// if (cantidad < 50) {
-		// 	throw new RuntimeException("Ocurrio un error");
-		// }
-		statement.setString(1, nombre);
-		statement.setString(2, descripcion);
-		statement.setInt(3, cantidad);
+		statement.setString(1, producto.getNombre());
+		statement.setString(2, producto.getDescripcion());
+		statement.setInt(3, producto.getCantidad());
 		statement.execute();
 		
 		final ResultSet resultSet = statement.getGeneratedKeys();
 			
 		try (resultSet) {
 			while (resultSet.next()) {
+				producto.setId(resultSet.getInt(1));
 				System.out.println(
-						String.format("Fue insertado el producto de ID %d",
-							resultSet.getInt(1)));
+						String.format("Fue insertado el producto %s", producto));
 			}
 		}
 	}

@@ -22,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 
 import com.jocnn.jdbc.controller.CategoriaController;
 import com.jocnn.jdbc.controller.ProductoController;
+import com.jocnn.jdbc.modelo.Producto;
 
 public class ControlDeStockFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -254,17 +255,17 @@ public class ControlDeStockFrame extends JFrame {
 			e1.printStackTrace();
 			throw new RuntimeException(e1);
 		}
-
+        
     }
-
+    
     private void guardar() {
         if (textoNombre.getText().isBlank() || textoDescripcion.getText().isBlank()) {
             JOptionPane.showMessageDialog(this, "Los campos Nombre y Descripción son requeridos.");
             return;
         }
-
+        
         Integer cantidadInt;
-
+        
         try {
             cantidadInt = Integer.parseInt(textoCantidad.getText());
         } catch (NumberFormatException e) {
@@ -272,12 +273,8 @@ public class ControlDeStockFrame extends JFrame {
                     .format("El campo cantidad debe ser numérico dentro del rango %d y %d.", 0, Integer.MAX_VALUE));
             return;
         }
-
-        // TODO
-        var producto = new HashMap<String, String>();
-        producto.put("nombre", textoNombre.getText());
-        producto.put("descripcion", textoDescripcion.getText());
-        producto.put("cantidad", String.valueOf(cantidadInt));
+        
+        var producto = new Producto(textoNombre.getText(), textoDescripcion.getText(), cantidadInt);
         
         var categoria = comboCategoria.getSelectedItem();
         
