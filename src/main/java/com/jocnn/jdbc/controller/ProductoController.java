@@ -2,12 +2,8 @@ package com.jocnn.jdbc.controller;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.jocnn.jdbc.dao.ProductoDAO;
 import com.jocnn.jdbc.modelo.Producto;
@@ -15,76 +11,26 @@ import com.jocnn.jdbc.modelo.Producto;
 import con.jocnn.jdbc.factory.ConnectionFactory;
 
 public class ProductoController {
+	private ProductoDAO productoDAO;
 	
-	public int modificar(String nombre, String descripcion, Integer cantidad, Integer id) throws SQLException {
-		ConnectionFactory factory = new ConnectionFactory();
-		final Connection cn = factory.recuperaConexion();
-		
-		try (cn) {
-			final PreparedStatement statement = cn.prepareStatement("UPDATE producto SET"
-				+ " nombre = ?"
-				+ ", descripcion = ?"
-				+ ", cantidad = ?"
-				+ " WHERE id = ?");
-			statement.setString(1, nombre);
-			statement.setString(2, descripcion);
-			statement.setInt(3, cantidad);
-			statement.setInt(4, id);
-			
-			try (statement) {
-				statement.execute();
-				int updateCount = statement.getUpdateCount();
-				return updateCount;
-			}
-		}
+	public ProductoController() {
+		var factory = new ConnectionFactory();
+		this.productoDAO = new ProductoDAO(factory.recuperaConexion());
 	}
 	
-	public int eliminar(Integer id) throws SQLException {
-		ConnectionFactory factory = new ConnectionFactory();
-		final Connection cn = factory.recuperaConexion();
-		
-		try (cn) {
-			final PreparedStatement statement = cn.prepareStatement("DELETE FROM producto WHERE id = ?");
-			
-			try (statement) {
-				statement.setInt(1, id);
-				statement.execute();
-				
-				int updateCount = statement.getUpdateCount();
-				return updateCount;
-			}
-		}
+	public int modificar(Producto producto) {
+		return productoDAO.modificar(producto);
 	}
 	
-	public List<Map<String, String>> listar() throws SQLException {
-		ConnectionFactory factory = new ConnectionFactory();
-		final Connection cn = factory.recuperaConexion();
-		
-		try (cn) {
-			final PreparedStatement statement = cn.prepareStatement(
-				"SELECT id, nombre, descripcion, cantidad FROM producto");
-
-			try (statement) {
-				statement.execute();
-				ResultSet resultSet = statement.getResultSet();
-				List<Map<String, String>> resultado = new ArrayList<>();
-				
-				while (resultSet.next()) {
-					Map<String, String> fila = new HashMap<>();
-					fila.put("id", String.valueOf(resultSet.getInt("id")));
-					fila.put("nombre", resultSet.getString("nombre"));
-					fila.put("descripcion", resultSet.getString("descripcion"));
-					fila.put("cantidad", String.valueOf(resultSet.getInt("cantidad")));
-					
-					resultado.add(fila);
-				}
-				return resultado;
-			}
-		}
+	public int eliminar(Integer id){
+		return productoDAO.eliminar(id);
 	}
 	
-    public void guardar(Producto producto) throws SQLException {
-		ProductoDAO productoDAO = new ProductoDAO(new ConnectionFactory().recuperaConexion());
-		productoDAO.guardarProducto(producto);
+	public List<Producto> listar() {
+		return productoDAO.listar();
+	}
+	
+    public void guardar(Producto producto) {
+		productoDAO.guardar(producto);
 	}
 }
