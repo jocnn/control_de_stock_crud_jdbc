@@ -1,8 +1,5 @@
 package com.jocnn.jdbc.controller;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 import com.jocnn.jdbc.dao.ProductoDAO;
@@ -17,7 +14,7 @@ public class ProductoController {
 		var factory = new ConnectionFactory();
 		this.productoDAO = new ProductoDAO(factory.recuperaConexion());
 	}
-	
+
 	public int modificar(Producto producto) {
 		return productoDAO.modificar(producto);
 	}
