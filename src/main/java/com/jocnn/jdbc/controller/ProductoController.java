@@ -3,6 +3,7 @@ package com.jocnn.jdbc.controller;
 import java.util.List;
 
 import com.jocnn.jdbc.dao.ProductoDAO;
+import com.jocnn.jdbc.modelo.Categoria;
 import com.jocnn.jdbc.modelo.Producto;
 
 import con.jocnn.jdbc.factory.ConnectionFactory;
@@ -25,6 +26,10 @@ public class ProductoController {
 	
 	public List<Producto> listar() {
 		return productoDAO.listar();
+	}
+
+	public List<Producto> listar(Categoria categoria) {
+		return productoDAO.listar(categoria.getId());
 	}
 	
 	public void guardar(Producto producto, Integer idCategoria) {
