@@ -1,6 +1,5 @@
 package com.jocnn.jdbc.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.jocnn.jdbc.dao.CategoriaDAO;
@@ -21,7 +20,7 @@ public class CategoriaController {
 		return categoriaDAO.listar();
 	}
 
-    public List<?> cargaReporte() {
-        return new ArrayList<>();
+    public List<Categoria> cargaReporte() {
+        return this.categoriaDAO.listarConProductos();
     }
 }
