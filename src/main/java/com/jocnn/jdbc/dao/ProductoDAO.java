@@ -105,11 +105,42 @@ public class ProductoDAO {
 							resultSet.getString("nombre"),
 							resultSet.getString("descripcion"),
 							resultSet.getInt("cantidad")
-						));	
+						)); 
 					}
 				}
 			}
-		} catch(SQLException e) {
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		return resultado;
+	}
+	
+	public List<Producto> listar(Integer categoriaId) {
+		List<Producto> resultado = new ArrayList<>();
+
+		try {
+			final PreparedStatement statement = cn.prepareStatement(
+					"SELECT id, nombre, descripcion, cantidad " 
+					+ "FROM producto "
+					+ "WHERE categoria_id = ?");
+
+			try (statement) {
+				statement.setInt(1, categoriaId);
+				statement.execute();
+				final ResultSet resultSet = statement.getResultSet();
+
+				try (resultSet) {
+					while (resultSet.next()) {
+						resultado.add(new Producto(
+							resultSet.getInt("id"),
+							resultSet.getString("nombre"),
+							resultSet.getString("descripcion"),
+							resultSet.getInt("cantidad")
+						));
+					}
+				}
+			}
+		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 		return resultado;
